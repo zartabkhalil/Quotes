@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     QoutesTheme {
-        SplashScreen(modifier = Modifier)
+//        SplashScreen()
+        Permission()
     }
 }
