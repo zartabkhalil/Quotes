@@ -2,8 +2,11 @@ package com.example.qoutes
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,19 +14,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -37,11 +46,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -74,10 +85,37 @@ fun Drawer() {
                 onClick = { /*TODO*/ })
         }
     }) {
-        Scaffold(bottomBar = { BottomBar(navController = navController) }
+        Scaffold(
+            bottomBar = {
 
+                BottomBar(navController = navController)
+            },
+//            floatingActionButton = {
+//                Box(modifier = Modifier
+//                    .size(80.dp)
+//                    .offset(y = 50.dp)
+//                ){
+//                    FloatingActionButton(
+//                        onClick = { /* stub */ },
+//                        shape = CircleShape,
+//                        modifier = Modifier
+//                            .align(Alignment.Center)
+//
+//
+//                    ) {
+//                        Image(
+//                            painter = painterResource(id = R.drawable.plus),
+//                            contentDescription = "bars",
+//                            modifier = Modifier
+//                                .height(20.dp)
+//                                .width(20.dp)
+//                        )
+//                    }
+//                }
+//            },
+            floatingActionButtonPosition = FabPosition.Center,
 
-        ) {
+            ) {
 
             BottomNavGraph(navController, scope, drawerState)
         }
@@ -155,11 +193,15 @@ fun BottomBar(navController: NavHostController) {
     var selectedOn by rememberSaveable {
         mutableStateOf(0)
     }
-//    NavigationBar {
+    val interactionSource = remember { MutableInteractionSource() }
+    //    BottomAppBar(
+//
+//
+//    ) {
 //        items.forEachIndexed { index, item ->
 //            NavigationBarItem(selected = index == selectedOn, onClick = {
 //                selectedOn = index
-//                navController.navigate(item.route){
+//                navController.navigate(item.route) {
 //                    popUpTo(0)
 //                }
 //            }, icon = {
@@ -170,100 +212,64 @@ fun BottomBar(navController: NavHostController) {
 //
 //        }
 //    }
-        BottomAppBar(
-            cutoutShape=fabShape
+
+
+    Box(
+        modifier = Modifier.padding(10.dp, end = 10.dp, bottom = 5.dp)
+
+    ) {
+        Row(
+            modifier = Modifier
+                .border(2.dp, colorResource(id = R.color.border), RoundedCornerShape(19.dp))
+                .fillMaxWidth()
+                .height(78.dp)
+                .clip(RoundedCornerShape(19.dp))
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            colorResource(id = R.color.color2),
+                            colorResource(id = R.color.color1),
+                        ),
+                    )
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
 
         ) {
-            items.forEachIndexed { index, item ->
-            NavigationBarItem(selected = index == selectedOn, onClick = {
-                selectedOn = index
-                navController.navigate(item.route){
-                    popUpTo(0)
-                }
-            }, icon = {
-                BadgedBox(badge = {}) {
-                    Icon(imageVector = Icons.Outlined.Home, contentDescription = "")
-                }
-            })
 
+
+            items.forEachIndexed { index, item ->
+
+
+                Column(
+                    modifier = Modifier.clickable( indication=null,
+                        interactionSource = interactionSource,
+                        onClick =  {
+                        selectedOn = index
+                        navController.navigate(item.route) {
+                            popUpTo(0)
+                        }
+                    }),
+
+
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = item.selectedIcon,
+                        contentDescription = "bars",
+                        modifier = Modifier
+                            .height(20.dp)
+                            .width(20.dp)
+                    )
+                    Text(
+                        text = item.title,
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                }
+            }
         }
-        }
-//    Box(
-//        modifier = Modifier.padding(10.dp, end = 10.dp, bottom = 5.dp)
-//
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .border(2.dp, colorResource(id = R.color.border), RoundedCornerShape(19.dp))
-//                .fillMaxWidth()
-//                .height(78.dp)
-//                .clip(RoundedCornerShape(19.dp))
-//                .background(
-//                    Brush.verticalGradient(
-//                        colors = listOf(
-//                            colorResource(id = R.color.color1),
-//                            colorResource(id = R.color.color2)
-//                        ),
-//                        startY = 1.1f
-//                    )
-//                ),
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.SpaceAround
-//
-//        ) {
-//
-//
-//            items.forEachIndexed { index, item ->
-//
-//                if (item.title === "Add") {
-//                    Column(
-//                        modifier = Modifier.
-//                        clip(RoundedCornerShape(40.dp)).
-//                        padding(bottom = 40.dp).
-//                        background(Brush.linearGradient(colors = listOf(colorResource(id = R.color.color2),
-//                            colorResource(id = R.color.color2))))
-//                            .size(80.dp),
-//
-//                        horizontalAlignment = Alignment.CenterHorizontally,
-//                        verticalArrangement = Arrangement.Center
-//                    ) {
-//                        Image(
-//                            painter = item.selectedIcon,
-//                            contentDescription = "bars",
-//                            modifier = Modifier
-//                                .height(20.dp)
-//                                .width(20.dp)
-//                        )
-//                        Text(
-//                            text = item.title,
-//                            color = Color.White,
-//                            fontSize = 12.sp
-//                        )
-//                    }
-//
-//                } else
-//                    Column(
-//                        modifier = Modifier.padding(
-//
-//                        ),
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        Image(
-//                            painter = item.selectedIcon,
-//                            contentDescription = "bars",
-//                            modifier = Modifier
-//                                .height(20.dp)
-//                                .width(20.dp)
-//                        )
-//                        Text(
-//                            text = item.title,
-//                            color = Color.White,
-//                            fontSize = 12.sp
-//                        )
-//                    }
-//            }
-//        }
-//    }
+    }
 }
 
 
